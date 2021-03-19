@@ -1,7 +1,8 @@
 package com.meritamerica.assignment4;
 
+import java.util.ArrayList;
 import java.util.Date;
-
+import java.util.List;
 import java.lang.NumberFormatException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,9 +12,9 @@ public abstract class BankAccount {
 	protected double balance;
 	protected Date accountOpenedOn; 
 	protected double interestRate;
+	private List<Transaction> transactions = new ArrayList<Transaction>();
 	
 	public BankAccount() {
-		
 	}
 	
 	public BankAccount(double openingBalance) {
@@ -100,21 +101,10 @@ public abstract class BankAccount {
 	}
 	
 	public double power(double base, double powerRaised) {
-        if (powerRaised != 0)
-            return (base * power(base, powerRaised - 1));
+        if (powerRaised > 0)
+            return (base * power(base, (powerRaised - 1)));
         else
             return 1;
-	}
-	
-	static BankAccount readFromString(String accountData) throws ParseException{
-		BankAccount fromStringAccount = new CheckingAccount();
-		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
-		String[] accountDataFormatter = accountData.split(",");
-		fromStringAccount.setAccountNumber(Long.parseLong(accountDataFormatter[0]));
-		fromStringAccount.setBalance(Double.parseDouble(accountDataFormatter[1]));
-		fromStringAccount.setInterestRate(Double.parseDouble(accountDataFormatter[2]));
-		fromStringAccount.accountOpenedOn = dateFormatter.parse(accountDataFormatter[3]);	
-		return fromStringAccount;
 	}
 
 	@Override
@@ -122,6 +112,10 @@ public abstract class BankAccount {
 		String dateString = dateFormatter.format(accountOpenedOn);
 		return accountNumber + "," + balance + "," + interestRate
 				+ "," + dateString;
+	}
+	
+	public void addTransaction(Transaction transaction) {
+		transactions.add(transaction);
 	}
 		
 	

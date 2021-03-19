@@ -1,9 +1,15 @@
 package com.meritamerica.assignment4;
 
+import java.text.SimpleDateFormat;
+
 public class DepositTransaction extends Transaction {
 
 	public DepositTransaction() {
 		// TODO Auto-generated constructor stub
+	}
+	
+	public DepositTransaction(double amount) {
+		this.setAmount(amount);
 	}
 	
 	public DepositTransaction(BankAccount targetAccount, double amount) {
@@ -18,7 +24,7 @@ public class DepositTransaction extends Transaction {
 
 	}
 	
-	public static DepositTransaction readFromString(String transactionDataString) {
+	/*public static DepositTransaction readFromString(String transactionDataString) {
 		DepositTransaction tempTransaction = new DepositTransaction();
 		String[] tempTransactionArray = transactionDataString.split(",");
 		if (tempTransactionArray.length == 4) {
@@ -26,9 +32,9 @@ public class DepositTransaction extends Transaction {
 			tempTransaction.setTargetAccount(getAccountNumberFromStringArray(Long.parseLong(tempTransactionArray[1])));
 			
 		}
-	}
+	}*/
 	
-	public static BankAccount getAccountNumberFromStringArray(long stringNumber) {
+	/*public static BankAccount getAccountNumberFromStringArray(long stringNumber) {
 		AccountHolder[] tempAccHoldArray = MeritBank.getAccountHolders();
 		for (int i = 0; i < tempAccHoldArray.length; i++) {
 			CheckingAccount[] tempCheckArr = tempAccHoldArray[i].getCheckingAccounts();
@@ -43,8 +49,14 @@ public class DepositTransaction extends Transaction {
 					return tempSavArr[k];
 				} else {return null;}
 			}
-		}
+		}*/
 		
+
+	public String writeToString() {
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+		String dateString = dateFormatter.format(this.getTransactionDate());
+		return -1 + "," + getTargetAccount().getAccountNumber() + "," + "-" + getAmount()
+				+ "," + dateString;
 	}
 
 }

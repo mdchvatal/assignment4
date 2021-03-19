@@ -1,5 +1,6 @@
 package com.meritamerica.assignment4;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -8,13 +9,23 @@ public abstract class Transaction {
 	private BankAccount targetAccount;
 	private double amount = 0.0;
 	private Date transactionDate;
-	private int fraudStatus = 1;
 	private boolean processedByFraudTeam;
 	private String rejectionReason;
+	private long targetAccountNumber;
+	private long sourceAccountNumber;
 
 	public Transaction() {
-		// TODO Auto-generated constructor stub
 	}
+	
+	public Transaction(double amount) {
+		setAmount(amount);
+	}
+	
+	public Transaction(BankAccount account, double amount) {
+		setTargetAccount(account);
+		setAmount(amount);
+	}
+	
 	
 	public BankAccount getSourceAccount() {
 		return sourceAccount;
@@ -47,34 +58,51 @@ public abstract class Transaction {
 	public void setTransactionDate(Date transactionDate) {
 		this.transactionDate = transactionDate;
 	}
-	
-	public void setFraudStatus() {
-		if (amount >= 1000) {
-			this.fraudStatus = -1;
-		} else {this.fraudStatus = 1;}
+
+	public long getTargetAccountNumber() {
+		return targetAccountNumber;
 	}
 	
-	public void setFraudStatus(int i) {
-		this.fraudStatus = i;
+	public void setTargetAccountNumber(long accNum) {
+		targetAccountNumber = accNum;
 	}
 	
-	public int getFraudStatus() {
-		return this.fraudStatus;
+	public long getSourceAccountNumber() {
+		return sourceAccountNumber;
 	}
 	
-	public String writeToString() {
+	public void setSourceAccountNumber(long accNum) {
+		sourceAccountNumber = accNum;
+	}
+	
+	/*public String writeToString() {
 		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
 		String dateString = dateFormatter.format(this.transactionDate);
 		return getFraudStatus() + "," + getTargetAccount().getAccountNumber() + "," + getAmount()
 				+ "," + dateString;
-	}
+	}*/
 	
-	public static Transaction readFromString(String transactionDataString) {
+	public static Transaction readFromString(String transactionDataString) throws ParseException {
 		Transaction stringTrans;
-		if (-1) {
-			if (value > 0) {
-				
+		String[] stringArr = transactionDataString.split(",");
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+		if (Integer.parseInt(stringArr[0]) == -1) {
+			if (Double.parseDouble(stringArr[2]) > 0) {
+				stringTrans = new DepositTransaction(Double.parseDouble(stringArr[2]));
+				stringTrans.setTransactionDate(dateFormatter.parse(stringArr[3]));
+				stringTrans.setSourceAccountNumber(Long.parseLong(stringArr[1]));
+				return stringTrans;
+			} else {
+				stringTrans = new WithdrawTransaction((Double.parseDouble(stringArr[2])*-1));
+				stringTrans.setTransactionDate(dateFormatter.parse(stringArr[3]));
+				stringTrans.setSourceAccountNumber(Long.parseLong(stringArr[1]));
+				return stringTrans;
 			}
+		} else {
+			stringTrans = new TransferTransaction(Double.parseDouble(stringArr[2]));
+			stringTrans.setTransactionDate(dateFormatter.parse(stringArr[3]));
+			stringTrans.setTargetAccountNumber(Long.parseLong(stringArr[1]));
+			return stringTrans;
 		}
 	}
 	
@@ -82,11 +110,6 @@ public abstract class Transaction {
 	
 	public abstract void process() throws NegativeAmountException, ExceedsAvailableBalanceException, ExceedsFraudSuspicionLimitException;
 
-	public boolean isProcessedByFraudTeam() {
-		if (getFraudStatus() == -1) {
-			return true;
-		} else {return false;}
-	}
 	
 	public void setProcessedByFraudTeam(boolean isProcessed) {
 		if (isProcessed == true) {

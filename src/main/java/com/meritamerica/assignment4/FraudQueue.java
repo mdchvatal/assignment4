@@ -3,7 +3,7 @@ package com.meritamerica.assignment4;
 import java.util.ArrayList;
 
 public class FraudQueue {
-	ArrayList<Transaction> fraudQueue = new ArrayList<Transaction>();
+	private ArrayList<Transaction> fraudQueue = new ArrayList<Transaction>();
 	
 
 	public FraudQueue() {

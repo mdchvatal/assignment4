@@ -19,6 +19,8 @@ public class MeritBank {
 	private static int numberOfCDOfferings;
 	private static long accountNumber;
 	private static int numberOfAccountHolders;
+	private static FraudQueue fraudQueue = new FraudQueue();
+	private static ArrayList<Transaction> transQueue = new ArrayList<Transaction>();
 	
 	
 	static boolean readFromFile(String fileName) {
@@ -49,13 +51,13 @@ public class MeritBank {
 		return false;	
 	}
 	
-	public static void doStuffWithFile() {
+	public static void doStuffWithFile(){
 		int lineCounter = 0;
 		setNextAccountNumber(Long.parseLong(fileStringArrayList.get(lineCounter)));
 		++lineCounter;
 		numberOfCDOfferings = Integer.parseInt(fileStringArrayList.get(lineCounter));
 		++lineCounter;
-		System.out.println("Number of CDOffs" + numberOfCDOfferings);
+		//System.out.println("Number of CDOffs" + numberOfCDOfferings);
 		if (numberOfCDOfferings > 0) {
 			cdOfferings = new CDOffering[numberOfCDOfferings];
 			for (int i = 0; i < numberOfCDOfferings; i++) {
@@ -65,47 +67,88 @@ public class MeritBank {
 		}
 		numberOfAccountHolders = Integer.parseInt(fileStringArrayList.get(lineCounter));
 		lineCounter++;
-		System.out.println("number of acc holders " + numberOfAccountHolders);
+		//System.out.println("number of acc holders " + numberOfAccountHolders);
 		if (numberOfAccountHolders > 0) {
 			for (int i = 0; i < numberOfAccountHolders; i++)
 			try {
-				
 				MeritBank.addAccountHolder(AccountHolder.readFromString(fileStringArrayList.get(lineCounter)));
 				lineCounter++;
 				int numberOfCheckingAccounts = Integer.parseInt(fileStringArrayList.get(lineCounter));
-				System.out.println("Number of checking account " + numberOfCheckingAccounts);
+				//System.out.println("Number of checking account " + numberOfCheckingAccounts);
 				if (numberOfCheckingAccounts > 0) {
-					//lineCounter++;
 					for (int j = 0; j < numberOfCheckingAccounts; j++) {
 						lineCounter++;
-						MeritBank.accountHolders[i].addCheckingAccount(CheckingAccount.readFromString(fileStringArrayList.get(lineCounter)));
+						MeritBank.accountHolders[i].addCheckingAccount(
+								CheckingAccount.readFromString(fileStringArrayList.get(lineCounter)));
+						lineCounter++;
+						int numberOfTransactions = Integer.parseInt(fileStringArrayList.get(lineCounter));
+						if (numberOfTransactions > 0) {
+							for (int m = 0; m < numberOfTransactions; m++) {
+								lineCounter++;
+								Transaction tempTrans = Transaction.readFromString(fileStringArrayList.get(lineCounter));
+								CheckingAccount[] tempAccArr = MeritBank.accountHolders[i].getCheckingAccounts();
+								tempTrans.setSourceAccount(tempAccArr[j]);
+								tempTrans.setTargetAccount(tempAccArr[j]);
+								transQueue.add(tempTrans);
+							}
+						}
 					}
-					lineCounter++;
-				} else {lineCounter++;}
+				}
+				lineCounter++;
 				int numberOfSavingsAccounts = Integer.parseInt(fileStringArrayList.get(lineCounter));
 				if (numberOfSavingsAccounts > 0) {
 					for (int k = 0; k < numberOfSavingsAccounts; k++) {
 						lineCounter++;
 						MeritBank.accountHolders[i].addSavingsAccount(SavingsAccount.readFromString(fileStringArrayList.get(lineCounter)));
-						
+						lineCounter++;
+						int numberOfTransactions = Integer.parseInt(fileStringArrayList.get(lineCounter));
+						if (numberOfTransactions > 0) {
+							for (int n = 0; n < numberOfTransactions; n++) {
+								lineCounter++;
+								Transaction tempTrans = Transaction.readFromString(fileStringArrayList.get(lineCounter));
+								transQueue.add(tempTrans);
+							}
+						}
 					}
-					lineCounter++;
-				} else {lineCounter++;}
+				}
+				lineCounter++;
 				int numberOfCDAccounts = Integer.parseInt(fileStringArrayList.get(lineCounter));
 				if (numberOfCDAccounts > 0) {
-					
 					for (int l = 0; l < numberOfCDAccounts; l++) {
 						lineCounter++;
-						MeritBank.accountHolders[i].addCDAccount(CDAccount.readFromString(fileStringArrayList.get(lineCounter)));
-						
+						MeritBank.accountHolders[i].addCDAccount(
+								CDAccount.readFromString(fileStringArrayList.get(lineCounter)));
+						lineCounter++;
+						int numberOfTransactions = Integer.parseInt(fileStringArrayList.get(lineCounter));
+						if (numberOfTransactions > 0) {
+							for (int n = 0; n < numberOfTransactions; n++) {
+								lineCounter++;
+								Transaction tempTrans = Transaction.readFromString(fileStringArrayList.get(lineCounter));
+								transQueue.add(tempTrans);
+							}
+						}
 					}
-					lineCounter++;
 				} else {lineCounter++;}
-			} catch (ParseException pe) {
+				
+		} catch (ParseException pe) {
 				pe.printStackTrace();
 			}
 		}
+		lineCounter++;
+		try {
+		int numberOfTrans = Integer.parseInt(fileStringArrayList.get(lineCounter));
+		for (int j = 0; j < numberOfTrans; j++) {
+			lineCounter++;
+			Transaction tempTrans;
+			tempTrans = Transaction.readFromString(fileStringArrayList.get(lineCounter));
+			//tempTrans.setSourceAccount(MeritBank.getBankAccount(tempTrans.getSourceAccountNumber()));
+			fraudQueue.addTransaction(tempTrans);
+			}
+		} catch (ParseException pe) {pe.printStackTrace();}
+		
 	}
+	
+
 	
 	public static void addAccountHolder(AccountHolder accountHolder) {
 		accountHolders[ahArrayCounter] = accountHolder;
@@ -184,11 +227,82 @@ public class MeritBank {
             return 1;
 	}
 	
-	public static boolean processTransaction(Transaction transaction) throws NegativeAmountException, ExceedsAvailableBalanceException {
-		
-		
+	public static boolean processTransaction(Transaction transaction) 
+			throws NegativeAmountException, ExceedsAvailableBalanceException, ExceedsFraudSuspicionLimitException {
+		if (transaction.getClass() == WithdrawTransaction.class) {
+			if (transaction.getAmount() > 1000) {
+				transaction.setRejectionReason("Fraud Limit Exceeded");
+				throw new ExceedsFraudSuspicionLimitException();
+				}
+			if (transaction.getAmount() < 0) {
+				transaction.setRejectionReason("Negative Amount");
+				throw new NegativeAmountException();
+				}
+			if (transaction.getSourceAccount().getBalance() < transaction.getAmount()) {
+				transaction.setRejectionReason("Exceeds Available Balance");
+				throw new ExceedsAvailableBalanceException();
+			} else {
+			transaction.getTargetAccount().withdraw(transaction.getAmount());
+			return true;
+			}
+		}
+		if (transaction.getClass() == DepositTransaction.class) {
+			if (transaction.getAmount() < 0) {
+				transaction.setRejectionReason("Negative Amount");
+				throw new NegativeAmountException();
+				}
+			transaction.getTargetAccount().deposit(transaction.getAmount());
+			return true;
+			}
+		if (transaction.getClass() == TransferTransaction.class) {
+			if (transaction.getSourceAccount().getBalance() <= 0) {
+				transaction.setRejectionReason("Negative Amount");
+				throw new NegativeAmountException();
+				} else if (transaction.getSourceAccount().getBalance() < transaction.getAmount()) {
+						transaction.setRejectionReason("Exceeds Available Balance");
+						throw new ExceedsAvailableBalanceException();
+				} else {
+					transaction.getSourceAccount().withdraw(transaction.getAmount());
+					transaction.getTargetAccount().deposit(transaction.getAmount());
+					return true;
+				}
+		}
+		return false;
 	}
-
-
-
+	
+	public static FraudQueue getFraudQueue() {
+		return fraudQueue;
+	}
+	
+	public static BankAccount getBankAccount(long accountNum) {
+		BankAccount tempAccount;
+		for (int i = 0; i < numberOfAccountHolders; i++) {
+			for (int j = 0; j < accountHolders[i].getCheckingAccounts().length; j++) {
+				BankAccount[] tempAccArr = accountHolders[i].getCheckingAccounts();
+				if (accountNum == tempAccArr[j].getAccountNumber()) {
+					tempAccount = new CheckingAccount();
+					tempAccount = tempAccArr[j];
+					return tempAccount;
+				}
+			}
+			for (int k = 0; k < accountHolders[i].getSavingsAccounts().length; k++) {
+				BankAccount[] tempAccArr = accountHolders[i].getSavingsAccounts();
+				if (accountNum == tempAccArr[k].getAccountNumber()) {
+					tempAccount = new SavingsAccount();
+					tempAccount = tempAccArr[k];
+					return tempAccount;
+				}
+			}
+			for (int l = 0; l < accountHolders[i].getSavingsAccounts().length; l++) {
+				BankAccount[] tempAccArr = accountHolders[i].getCDAccounts();
+				if (accountNum == tempAccArr[l].getAccountNumber()) {
+					tempAccount = new SavingsAccount();
+					tempAccount = tempAccArr[l];
+					return tempAccount;
+				}
+			}
+		}
+		System.out.println("Account Number Not Found \n");
+		return null;
+	}
 }
