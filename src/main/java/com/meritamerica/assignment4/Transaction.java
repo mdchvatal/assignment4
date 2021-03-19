@@ -69,6 +69,15 @@ public abstract class Transaction {
 				+ "," + dateString;
 	}
 	
+	public static Transaction readFromString(String transactionDataString) {
+		Transaction stringTrans;
+		if (-1) {
+			if (value > 0) {
+				
+			}
+		}
+	}
+	
 	
 	
 	public abstract void process() throws NegativeAmountException, ExceedsAvailableBalanceException, ExceedsFraudSuspicionLimitException;

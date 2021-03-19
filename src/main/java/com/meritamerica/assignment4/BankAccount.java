@@ -10,7 +10,7 @@ public abstract class BankAccount {
 	protected long accountNumber;
 	protected double balance;
 	protected Date accountOpenedOn; 
-	private double interestRate;
+	protected double interestRate;
 	
 	public BankAccount() {
 		
