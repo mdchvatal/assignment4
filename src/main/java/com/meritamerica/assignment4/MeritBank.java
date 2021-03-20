@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.Collections;
 
 public class MeritBank {
+	private static final double CHECKING_INTEREST = 0.0001;
+	private static final double SAVINGS_INTEREST = 0.01;
 	private static ArrayList<String> fileStringArrayList = new ArrayList<String>();
 	private static AccountHolder[] accountHolders = new AccountHolder[20];
 	private static int ahArrayCounter = 0;
@@ -21,6 +23,14 @@ public class MeritBank {
 	private static int numberOfAccountHolders;
 	private static FraudQueue fraudQueue = new FraudQueue();
 	private static ArrayList<Transaction> transQueue = new ArrayList<Transaction>();
+	
+	public static double getCheckingInterest() {
+		return CHECKING_INTEREST;
+	}
+	
+	public static double getSavingsInterest() {
+		return SAVINGS_INTEREST;
+	}
 	
 	
 	static boolean readFromFile(String fileName) {
@@ -38,6 +48,7 @@ public class MeritBank {
 			System.out.println("Bad file name. Try Again");
 			return false;
 		}catch (NumberFormatException nfe) {
+			System.out.println("Bad data");
 			return false;
 		}
 	} 
@@ -48,7 +59,8 @@ public class MeritBank {
 			fileStringArrayList.forEach((listString) -> printWriter.println(listString));
 			return true;
 		} catch (IOException ioe) {System.out.println("Error");}
-		return false;	
+		throw new NumberFormatException();
+		//return false;	
 	}
 	
 	public static void doStuffWithFile(){

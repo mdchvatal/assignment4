@@ -95,16 +95,11 @@ public abstract class BankAccount {
 		} else return false;
 	}
 	
-	
 	public double futureValue(double years) {
-		return power(getBalance(), (1+(years * getInterestRate())));
-	}
-	
-	public double power(double base, double powerRaised) {
-        if (powerRaised > 0)
-            return (base * power(base, (powerRaised - 1)));
-        else
-            return 1;
+		if (years == 1) {
+			return 1;
+		}
+		return (getBalance() * Math.pow((1+interestRate), years));
 	}
 
 	@Override
@@ -117,6 +112,10 @@ public abstract class BankAccount {
 	public void addTransaction(Transaction transaction) {
 		transactions.add(transaction);
 	}
+
+	
+
+	
 		
 	
 }

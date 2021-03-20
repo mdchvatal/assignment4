@@ -20,6 +20,10 @@ public class CDAccount extends BankAccount {
 		return term;
 	}
 	
+	public void setTerm(int i) {
+		this.term = i;
+	}
+	
 	@Override
 	public boolean withdraw(double amount) {
 			return false;
@@ -35,25 +39,21 @@ public class CDAccount extends BankAccount {
 		return total;
 	}
 	
-	static CDAccount readFromString(String accountData) {
+	public static CDAccount readFromString(String accountData) throws ParseException{
 		CDAccount fromStringAccount = new CDAccount();
-		try {
-			SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
-			String[] accountDataFormatter = accountData.split(",");
-			if (accountDataFormatter.length != 5) {
-				throw new NumberFormatException();
-			}else {
-				fromStringAccount.setAccountNumber(Long.parseLong(accountDataFormatter[0]));
-				fromStringAccount.balance = Double.parseDouble(accountDataFormatter[1]);
-				fromStringAccount.setInterestRate(Double.parseDouble(accountDataFormatter[2]));
-				fromStringAccount.setAccountOpenedOn(dateFormatter.parse(accountDataFormatter[3]));
-				fromStringAccount.term = Integer.parseInt(accountDataFormatter[4]);
-			}
-		} catch (ParseException e) {
-			System.out.println("That's not valid data input");
-			e.printStackTrace();
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+		String[] accountDataFormatter = accountData.split(",");
+		if (accountDataFormatter.length != 5) {
+			throw new NumberFormatException();
+		} else {
+			fromStringAccount.setAccountNumber(Long.parseLong(accountDataFormatter[0]));
+			fromStringAccount.setBalance(Double.parseDouble(accountDataFormatter[1]));
+			fromStringAccount.setInterestRate(Double.parseDouble(accountDataFormatter[2]));
+			System.out.println(fromStringAccount.getInterestRate());
+			fromStringAccount.accountOpenedOn = dateFormatter.parse(accountDataFormatter[3]);
+			fromStringAccount.setTerm(Integer.parseInt(accountDataFormatter[4]));
+			return fromStringAccount;
 		}
-		return fromStringAccount;
 	}
 
 	@Override

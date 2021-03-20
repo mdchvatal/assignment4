@@ -209,7 +209,7 @@ public class SolutionTest {
 
         double fv = 100.0 * Math.pow(1 + 0.0001, 3);
         
-        assertEquals(fv, checkingAccount.futureValue(3), 0.1);
+        assertEquals(fv, checkingAccount.futureValue(3), 0);
     }
     
     @Test(expected = ExceedsFraudSuspicionLimitException.class)
@@ -355,6 +355,7 @@ public class SolutionTest {
     	assertEquals(true, result);
     	
     	result = MeritBank.readFromFile("src/test/testMeritBank_bad.txt");
+    	System.out.println();
     	assertEquals(false, result);
 
     	assertEquals(11, MeritBank.getNextAccountNumber());

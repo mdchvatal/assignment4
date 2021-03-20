@@ -71,6 +71,7 @@ public class AccountHolder implements Comparable<AccountHolder>{
 		}
 		CheckingAccount account = new CheckingAccount();
 		account.setBalance(openingBalance);
+		account.setInterestRate(MeritBank.getCheckingInterest());
 		if (((this.getCheckingBalance() + this.getSavingsBalance()) + openingBalance < 250000)) {
 			checkingAccounts[numberOfCheckingAccounts++] = account;
 			return account;
@@ -79,12 +80,12 @@ public class AccountHolder implements Comparable<AccountHolder>{
 		}
 	}
 	
-	public CheckingAccount addCheckingAccount(CheckingAccount checkingAccount) {
+	public CheckingAccount addCheckingAccount(BankAccount checkingAccount) {
 		if ((this.getCheckingBalance() + this.getSavingsBalance()) + checkingAccount.getBalance() < 250000) {
-			checkingAccounts[numberOfCheckingAccounts++] = checkingAccount;
-			return checkingAccount;
+			checkingAccounts[numberOfCheckingAccounts++] = (CheckingAccount) checkingAccount;
+			return (CheckingAccount) checkingAccount;
 		} else {
-			return checkingAccount;
+			return (CheckingAccount) checkingAccount;
 		}
 	}
 		
@@ -119,12 +120,12 @@ public class AccountHolder implements Comparable<AccountHolder>{
 		}
 	}
 	
-	public SavingsAccount addSavingsAccount(SavingsAccount savingsAccount) {
+	public SavingsAccount addSavingsAccount(BankAccount savingsAccount) {
 		if ((this.getCheckingBalance() + this.getSavingsBalance()) + savingsAccount.getBalance() < 250000) {
-			savingsAccounts[numberOfSavingsAccounts++] = savingsAccount;
-			return savingsAccount;
+			savingsAccounts[numberOfSavingsAccounts++] = (SavingsAccount) savingsAccount;
+			return (SavingsAccount) savingsAccount;
 		} else {
-			return savingsAccount;
+			return (SavingsAccount) savingsAccount;
 		}
 	}
 	
@@ -153,8 +154,8 @@ public class AccountHolder implements Comparable<AccountHolder>{
 		
 	}
 		
-	public CDAccount addCDAccount(CDAccount cdAccount) {
-		cdAccounts[numberOfCDAccounts] = cdAccount;
+	public CDAccount addCDAccount(BankAccount cdAccount) {
+		cdAccounts[numberOfCDAccounts] = (CDAccount) cdAccount;
 		return cdAccounts[numberOfCDAccounts++];
 	}
 		
