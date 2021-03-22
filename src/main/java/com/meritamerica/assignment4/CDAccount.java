@@ -6,6 +6,7 @@ import java.util.Date;
 
 public class CDAccount extends BankAccount {
 	private int term;
+	private int tempTerm;
 
 	public CDAccount() {
 	}
@@ -13,6 +14,7 @@ public class CDAccount extends BankAccount {
 	public CDAccount(CDOffering offering, double balance) {
 		super(balance, offering.getInterestRate());
 		this.term = offering.getTerm();
+		this.tempTerm = term;
 		super.setAccountNumber(MeritBank.getNextAccountNumber());
 	}
 
@@ -22,6 +24,7 @@ public class CDAccount extends BankAccount {
 	
 	public void setTerm(int i) {
 		this.term = i;
+		this.tempTerm = term;
 	}
 	
 	@Override
@@ -35,8 +38,29 @@ public class CDAccount extends BankAccount {
 	}
 	
 	public double futureValue() {
-		double total = (getBalance() * Math.pow((1+getInterestRate()), term));
-		return total;
+	    if (tempTerm == 0) {
+	    	double tempBalance;
+	    	tempBalance = futureBalance;
+	    	resetFutureBalance();
+	        return tempBalance;
+	    } else {
+	        futureBalance = futureBalance * (1 + getInterestRate());
+	        --tempTerm;
+	        return futureValue();
+	    }
+	  }
+	
+	public double getFutureBalance() {
+		this.futureBalance = this.balance;
+		return futureBalance;
+	}
+	
+	public void resetFutureBalance() {
+		this.futureBalance = getBalance();
+	}
+	
+	public void resetTempTerm() {
+		this.tempTerm = this.term;
 	}
 	
 	public static CDAccount readFromString(String accountData) throws ParseException{

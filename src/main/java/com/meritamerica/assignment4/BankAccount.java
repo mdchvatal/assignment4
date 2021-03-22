@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 public abstract class BankAccount {
+	protected double futureBalance;
 	protected long accountNumber;
 	protected double balance;
 	protected Date accountOpenedOn; 
@@ -19,6 +20,7 @@ public abstract class BankAccount {
 	
 	public BankAccount(double openingBalance) {
 		this.balance = openingBalance;
+		this.futureBalance = openingBalance;
 	}
 	
 	public BankAccount(double balance, double interestRate) {
@@ -95,11 +97,31 @@ public abstract class BankAccount {
 		} else return false;
 	}
 	
-	public double futureValue(double years) {
+	/*public double futureValue(double years) {
 		if (years == 1) {
 			return 1;
 		}
 		return (getBalance() * Math.pow((1+interestRate), years));
+	}*/
+	
+	public double futureValue(int years) {
+	    if (years == 0) {
+	    	double tempBalance;
+	    	tempBalance = futureBalance;
+	    	resetFutureBalance();
+	        return tempBalance;
+	    } else {
+	        futureBalance = futureBalance * (1 + getInterestRate());
+	        return futureValue(--years);
+	    }
+	}
+	    
+	public double getFutureBalance() {
+		futureBalance = balance;
+		return futureBalance;
+	}
+	public void resetFutureBalance() {
+		futureBalance = getBalance();
 	}
 
 	@Override
@@ -112,10 +134,5 @@ public abstract class BankAccount {
 	public void addTransaction(Transaction transaction) {
 		transactions.add(transaction);
 	}
-
-	
-
-	
-		
 	
 }

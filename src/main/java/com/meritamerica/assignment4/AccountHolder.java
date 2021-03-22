@@ -69,8 +69,7 @@ public class AccountHolder implements Comparable<AccountHolder>{
 		if (openingBalance >= 1000) {
 			throw new ExceedsFraudSuspicionLimitException();
 		}
-		CheckingAccount account = new CheckingAccount();
-		account.setBalance(openingBalance);
+		CheckingAccount account = new CheckingAccount(openingBalance);
 		account.setInterestRate(MeritBank.getCheckingInterest());
 		if (((this.getCheckingBalance() + this.getSavingsBalance()) + openingBalance < 250000)) {
 			checkingAccounts[numberOfCheckingAccounts++] = account;
@@ -110,8 +109,7 @@ public class AccountHolder implements Comparable<AccountHolder>{
 		if (openingBalance >= 1000) {
 			throw new ExceedsFraudSuspicionLimitException();
 		}
-		SavingsAccount account = new SavingsAccount();
-		account.setBalance(openingBalance);
+		SavingsAccount account = new SavingsAccount(openingBalance);
 		if (((this.getCheckingBalance() + this.getSavingsBalance()) + openingBalance <= 250000)) {
 			savingsAccounts[numberOfSavingsAccounts++] = account;
 			return account;
